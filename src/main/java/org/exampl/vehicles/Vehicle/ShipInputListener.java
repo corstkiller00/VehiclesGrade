@@ -64,11 +64,11 @@ public class ShipInputListener implements Listener {
                 }
 // Statements
                 break;
-            case "§6Steer Left":
+            case "§6<--- Port":
                 vehicle.changeHeadPoseRotation(-5.0);
 // Statements
                 break;
-            case "§6Steer Right":
+            case "§6---> Starboard":
                 vehicle.changeHeadPoseRotation(5.0);
 // Statements
                 break;

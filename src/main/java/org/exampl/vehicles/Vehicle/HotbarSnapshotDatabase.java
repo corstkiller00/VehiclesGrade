@@ -17,6 +17,10 @@ public class HotbarSnapshotDatabase {
         savedHotbars.put(player.getUniqueId(), snapshot);
     }
 
+    public HotbarSnapshot getHotBatSnapshot(Player player){
+        return  savedHotbars.get(player.getUniqueId());
+    }
+
     public void removePlayerSnapshotFromDatabase(Player player) {
         savedHotbars.remove(player.getUniqueId());
     }
