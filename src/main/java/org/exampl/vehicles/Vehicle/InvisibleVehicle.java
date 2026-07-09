@@ -89,7 +89,7 @@ public class InvisibleVehicle {
             return new Location(
                     world,
                     x + 0.5,
-                    y + (1.05 + lowestYBlock),
+                    y + (0.5 + lowestYBlock),
                     z + 0.5,
                     player.getLocation().getYaw(),
                     0
