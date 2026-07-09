@@ -1,0 +1,22 @@
+name: VehiclesGrade
+version: '1.0-SNAPSHOT'
+
+main: org.exampl.vehicles.Vehicles
+api-version: '1.21.4'
+load: POSTWORLD
+
+commands:
+  spawnboat:
+    description: Spawns a boat at your location
+    usage: /spawnboat
+    permission: spawnboat.use
+
+  saveship:
+    description: Saves a ship schematic
+    usage: /saveship
+    permission: saveship.use
+
+  loadship:
+    description: Loads a ship schematic
+    usage: /loadship
+    permission: loadship.use
