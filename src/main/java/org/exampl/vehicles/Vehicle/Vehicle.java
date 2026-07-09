@@ -3,10 +3,12 @@ package org.exampl.vehicles.Vehicle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.entity.CraftArmorStand;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
@@ -35,6 +37,7 @@ public class Vehicle {
     private boolean isAnchored = true;
     private Location cachedCentre;
     private double cachedYaw;
+    private boolean fullSpeed = false;
 
 
     public boolean isSailsDown() {
@@ -270,6 +273,20 @@ public class Vehicle {
                 // -------------------------
                 if (sailsDown && !isAnchored && currentSpeed < maxSpeed) {
                     currentSpeed = Math.min(maxSpeed, currentSpeed + acceleration);
+                }
+
+                if(currentSpeed == maxSpeed && !fullSpeed){
+                    fullSpeed = true;
+                    player.playSound(
+                            player.getLocation(),
+                            Sound.ENTITY_ENDER_DRAGON_FLAP,
+                            0.08f,
+                            1.8f
+                    );
+                }
+
+                if(fullSpeed && currentSpeed < maxSpeed){
+                    fullSpeed = false;
                 }
 
                 if (isAnchored) {
