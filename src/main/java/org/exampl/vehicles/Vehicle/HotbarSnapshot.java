@@ -32,18 +32,6 @@ public class HotbarSnapshot {
                 player.getInventory().setItem(i, null);
             }
         }
-
-        for (int i = 0; i < 9; i++) {
-            ItemStack item = items[i];
-
-            if (item == null) {
-                System.out.println("Slot " + i + ": null");
-            } else {
-                System.out.println("Slot " + i + ": "
-                        + item.getType()
-                        + " x" + item.getAmount());
-            }
-        }
     }
 
     public void restore() {
@@ -59,47 +47,51 @@ public class HotbarSnapshot {
     public void setShipHotbar() {
 
 
-        ItemStack wheel = new ItemStack(Material.COMPASS);
+        ItemStack wheel = new ItemStack(Material.SPECTRAL_ARROW);
         ItemMeta SteerLeftMeta = wheel.getItemMeta();
-        Component.text("Steer Left", NamedTextColor.GOLD);
+        SteerLeftMeta.displayName(Component.text("<--- Port", NamedTextColor.GOLD));
         List loreListSteerLeft = new ArrayList();
-        loreListSteerLeft.add(Component.text("Steer Left", NamedTextColor.GOLD));
+        loreListSteerLeft.add(Component.text("<--- Port", NamedTextColor.GOLD));
         SteerLeftMeta.lore(loreListSteerLeft);
         wheel.setItemMeta(SteerLeftMeta);
-        player.getInventory().setItem(2, wheel);
+        player.getInventory().setItem(1, wheel);
 
 
 
         ItemStack steerRight = new ItemStack(Material.ARROW);
         ItemMeta SteerRightMeta = steerRight.getItemMeta();
-        Component.text("Steer Right", NamedTextColor.GOLD);
+        SteerRightMeta.displayName(Component.text("---> Starboard", NamedTextColor.GOLD));
         List loreListSteerRight = new ArrayList();
-        loreListSteerRight.add(Component.text("Steer Right", NamedTextColor.GOLD));
+        loreListSteerRight.add(Component.text("---> Starboard", NamedTextColor.GOLD));
         SteerRightMeta.lore(loreListSteerRight);
         steerRight.setItemMeta(SteerRightMeta);
-        player.getInventory().setItem(4, steerRight);
+        player.getInventory().setItem(7, steerRight);
 
 
 
 
         ItemStack lowerSails = new ItemStack(Material.WHITE_BANNER);
         ItemMeta lowerSailsMeta = lowerSails.getItemMeta();
-        Component.text("Adjust Sails", NamedTextColor.GOLD);
+        lowerSailsMeta.displayName(Component.text("Adjust Sails", NamedTextColor.GOLD));
         List loreListLowerSails = new ArrayList();
         loreListLowerSails.add(Component.text("Adjust Sails", NamedTextColor.GOLD));
         lowerSailsMeta.lore(loreListLowerSails);
         lowerSails.setItemMeta(lowerSailsMeta);
-        player.getInventory().setItem(6, lowerSails);
+        player.getInventory().setItem(3, lowerSails);
 
 
 
         ItemStack anchor = new ItemStack(Material.CHAIN);
         ItemMeta anchorMeta = anchor.getItemMeta();
-        Component.text("Anchor", NamedTextColor.GOLD);
+        anchorMeta.displayName(Component.text("Anchor", NamedTextColor.GOLD));
         List loreListAnchor = new ArrayList();
         loreListAnchor.add(Component.text("Anchor", NamedTextColor.GOLD));
         anchorMeta.lore(loreListAnchor);
         anchor.setItemMeta(anchorMeta);
-        player.getInventory().setItem(8, anchor);
+        player.getInventory().setItem(5, anchor);
+    }
+
+    public Player getPlayer() {
+        return player;
     }
 }

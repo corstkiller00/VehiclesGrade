@@ -46,9 +46,9 @@ public class SneakListener implements Listener {
             }
 
             if (part.equals(ShipPartType.WHEEL.name())) {
-                Vehicle vehicle = new Vehicle(player);
+                //Vehicle vehicle = new Vehicle(player);
                 //vehicle.createVehicle();
-                vehicle.startMovementLoop();
+               // vehicle.startMovementLoop();
             }
         }
     }

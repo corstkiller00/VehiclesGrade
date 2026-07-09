@@ -123,8 +123,6 @@ public class Vehicle {
                 continue;
             }
 
-            System.out.println(blockData.getMaterial().toString());
-
             org.exampl.vehicles.Vehicle.Block blockDisplay = new org.exampl.vehicles.Vehicle.Block(new Vector(block.getX(), block.getY(),block.getZ()), blockData.getMaterial(),  this.invisibleVehicle.getStand());
 
             this.blocks.add(blockDisplay);
