@@ -39,6 +39,9 @@ public class Cannon {
         // Match player yaw but keep the cannon level
         float yaw = player.getLocation().getYaw();
 
+        //get Y height
+       // float pitch = player.getLocation().getPitch();
+
         Location baseLoc = cannonLocation.clone();
         baseLoc.setYaw(yaw);
         baseLoc.setPitch(0);
@@ -179,15 +182,19 @@ public class Cannon {
 
                 float yaw = player.getLocation().getYaw();
 
-                Quaternionf rotation = new Quaternionf()
+                // Limit cannon elevation
+                float pitch = player.getLocation().getPitch();
+                pitch = Math.max(-30, Math.min(30, pitch));
 
-                        // Aim with player yaw first
+                Quaternionf rotation = new Quaternionf()
+                        // Turn cannon to player direction
                         .rotateY((float)Math.toRadians(-yaw))
 
-                        // Correct lightning rod orientation afterwards
-                        .rotateX((float)Math.toRadians(90));
+                        // Lay the lightning rod like a barrel
+                        .rotateX((float)Math.toRadians(90))
 
-
+                        // Aim slightly up/down
+                        .rotateX((float)Math.toRadians(pitch));
 
 
                 barrel.setTransformation(new Transformation(
