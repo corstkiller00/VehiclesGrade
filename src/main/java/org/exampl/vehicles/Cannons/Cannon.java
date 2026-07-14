@@ -98,7 +98,6 @@ public class Cannon {
 
                     // Rotate onto its side
                     new Quaternionf()
-                           // .rotateZ((float)Math.toRadians(90))
                             // Turn cannon to player direction
                             .rotateY((float)Math.toRadians(-getYaw(face)))
 
