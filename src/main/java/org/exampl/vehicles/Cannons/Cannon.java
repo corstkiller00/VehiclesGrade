@@ -33,14 +33,31 @@ public class Cannon {
                 face.getModZ()
         );
 
+
+
         Location furnaceLoc = cannonLocation.clone()
-                        .add(forward.clone().multiply(2));
+                        .add(forward.clone().multiply(1))
+                        .add(0, 0.45, 0);
+
+
+
+        /*
+        Location furnaceLoc = cannonLocation.clone();
+
+        switch (face) {
+            case NORTH -> furnaceLoc.add(0, 0, -2);
+            case SOUTH -> furnaceLoc.add(0, 0, 2);
+            case EAST  -> furnaceLoc.add(2, 0, 0);
+            case WEST  -> furnaceLoc.add(-2, 0, 0);
+        }
+
+         */
 
         furnaceLoc.setYaw(0);
         furnaceLoc.setPitch(0);
 
         Location barrelLoc = furnaceLoc.clone()
-                .add(forward.clone().multiply(2))
+                .add(forward.clone().multiply(1.20))
                 .add(0, 0.45, 0);
 
         World world = cannonLocation.getWorld();
@@ -75,7 +92,7 @@ public class Cannon {
             bd.setBlock(furnace);
 
             Transformation t = new Transformation(
-                    new Vector3f(0f, 0f, 0f),
+                    new Vector3f(-0.5f, -0.5f, -0.5f),
                     new Quaternionf(),
                     new Vector3f(1f, 1f, 1f),
                     new Quaternionf()
@@ -94,7 +111,7 @@ public class Cannon {
                     // Offset from blast furnace
                    // new Vector3f(0f, 0.45f, -0.70f),
 
-                    new Vector3f(0f, 0.0f, 0f),
+                    new Vector3f(0f, 0f, 0f),
 
                     // Rotate onto its side
                     new Quaternionf()
@@ -110,12 +127,26 @@ public class Cannon {
         });
 
 
+        //System.out.println(yaw);
+
+       // System.out.println(getYaw(face));
+
+
         Quaternionf rotation = new Quaternionf()
-                .rotateY((float)Math.toRadians(-yaw))
-                .rotateZ((float)Math.toRadians(90));
+                //.rotateY((float)Math.toRadians(-yaw))
+                //.rotateZ((float)Math.toRadians(90));
+
+                // Turn cannon to player direction
+               .rotateY((float)Math.toRadians(-getYaw(face)))
+
+                // Lay the lightning rod like a barrel
+                .rotateX((float)Math.toRadians(90));
+
+                // Aim slightly up/down
+              // .rotateX((float)Math.toRadians(pitch));
 
         Transformation t = new Transformation(
-                new Vector3f(0, 0, 0),
+                new Vector3f(0f, -0.5f, 0f),
                 rotation,
                 new Vector3f(1f, 2.2f, 1f),
                 new Quaternionf()
@@ -123,6 +154,7 @@ public class Cannon {
 
 
         barrel.setTransformation(t);
+
 
         rotateCannon(player);
     }
@@ -198,10 +230,11 @@ public class Cannon {
             public void run() {
 
                 float yaw = player.getLocation().getYaw();
+                yaw = Math.max(-20, Math.min(20, yaw));
 
                 // Limit cannon elevation
                 float pitch = player.getLocation().getPitch();
-                pitch = Math.max(-30, Math.min(30, pitch));
+                pitch = Math.max(-20, Math.min(20, pitch));
 
                 Quaternionf rotation = new Quaternionf()
                         // Turn cannon to player direction
@@ -215,7 +248,7 @@ public class Cannon {
 
 
                 barrel.setTransformation(new Transformation(
-                        new Vector3f(0f, 0.45f, -0.70f),
+                        new Vector3f(0f, -0.5f, 0f),
                         rotation,
                         new Vector3f(1f, 2.2f, 1f),
                         new Quaternionf()
@@ -252,5 +285,16 @@ public class Cannon {
         }
 
         return BlockFace.SOUTH;
+    }
+
+
+    public static float getYaw(BlockFace face) {
+        return switch (face) {
+            case SOUTH -> 0f;
+            case WEST  -> 90f;
+            case NORTH -> 180f;
+            case EAST  -> -90f; // or 270f
+            default    -> 0f;
+        };
     }
 }
