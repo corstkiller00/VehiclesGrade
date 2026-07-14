@@ -94,11 +94,16 @@ public class Cannon {
 
             Transformation t = new Transformation(
 
-                    new Vector3f(0f, 0f, 0f),
+                    new Vector3f(0f, -0.5f, 0f),
 
                     // Rotate onto its side
                     new Quaternionf()
-                            .rotateZ((float)Math.toRadians(90)),
+                           // .rotateZ((float)Math.toRadians(90))
+                            // Turn cannon to player direction
+                            .rotateY((float)Math.toRadians(-getYaw(face)))
+
+                            // Lay the lightning rod like a barrel
+                            .rotateX((float)Math.toRadians(90)),
 
                     // Make it longer
                     new Vector3f(1f, 2.2f, 1f),
@@ -108,25 +113,6 @@ public class Cannon {
 
             id.setTransformation(t);
         });
-
-
-        Quaternionf rotation = new Quaternionf()
-
-                // Turn cannon to player direction
-               .rotateY((float)Math.toRadians(-getYaw(face)))
-
-                // Lay the lightning rod like a barrel
-                .rotateX((float)Math.toRadians(90));
-
-        Transformation t = new Transformation(
-                new Vector3f(0f, -0.5f, 0f),
-                rotation,
-                new Vector3f(1f, 2.2f, 1f),
-                new Quaternionf()
-        );
-
-
-        barrel.setTransformation(t);
 
         rotateCannon(player);
     }
