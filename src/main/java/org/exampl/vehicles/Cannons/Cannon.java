@@ -23,15 +23,24 @@ public class Cannon {
     public Cannon(Location cannonLocation, Player player){
 
 
-        Vector forward = cannonLocation.getDirection().setY(0).normalize();
+       //Vector forward = cannonLocation.getDirection().setY(0).normalize();
 
-        Location furnaceLoc = cannonLocation.clone();
+        BlockFace face = getClosestFacing(player.getLocation().getYaw());
+
+        Vector forward = new Vector(
+                face.getModX(),
+                0,
+                face.getModZ()
+        );
+
+        Location furnaceLoc = cannonLocation.clone()
+                        .add(forward.clone().multiply(2));
 
         furnaceLoc.setYaw(0);
         furnaceLoc.setPitch(0);
 
         Location barrelLoc = furnaceLoc.clone()
-                .add(forward.clone().multiply(0.45))
+                .add(forward.clone().multiply(2))
                 .add(0, 0.45, 0);
 
         World world = cannonLocation.getWorld();
@@ -57,7 +66,13 @@ public class Cannon {
 
         // Base (Blast Furnace)
         breech = world.spawn(furnaceLoc, BlockDisplay.class, bd -> {
-            bd.setBlock(Bukkit.createBlockData(Material.BLAST_FURNACE));
+            Directional furnace = (Directional) Bukkit.createBlockData(Material.BLAST_FURNACE);
+
+            furnace.setFacing(
+                    getClosestFacing(player.getLocation().getYaw())
+            );
+
+            bd.setBlock(furnace);
 
             Transformation t = new Transformation(
                     new Vector3f(0f, 0f, 0f),
@@ -77,7 +92,9 @@ public class Cannon {
             Transformation t = new Transformation(
 
                     // Offset from blast furnace
-                    new Vector3f(0f, 0.45f, -0.70f),
+                   // new Vector3f(0f, 0.45f, -0.70f),
+
+                    new Vector3f(0f, 0.0f, 0f),
 
                     // Rotate onto its side
                     new Quaternionf()
@@ -213,4 +230,27 @@ public class Cannon {
         return (float) Math.toDegrees(Math.atan2(-v.getX(), v.getZ()));
     }
 
+
+    private BlockFace getClosestFacing(float yaw) {
+
+        yaw = yaw % 360;
+
+        if (yaw < 0) {
+            yaw += 360;
+        }
+
+        if (yaw >= 45 && yaw < 135) {
+            return BlockFace.WEST;
+        }
+
+        if (yaw >= 135 && yaw < 225) {
+            return BlockFace.NORTH;
+        }
+
+        if (yaw >= 225 && yaw < 315) {
+            return BlockFace.EAST;
+        }
+
+        return BlockFace.SOUTH;
+    }
 }
