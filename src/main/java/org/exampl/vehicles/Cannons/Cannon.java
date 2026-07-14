@@ -15,17 +15,19 @@ import org.joml.Vector3f;
 public class Cannon {
 
     private ArmorStand armorStands;
-    private BlockDisplay breech;
+    private BlockDisplay blastFurnance;
     private ItemDisplay barrel;
     private Interaction pivot;
     private Quaternionf initialRotation;
+    private ArmorStand stand;
 
     public Cannon(Location cannonLocation, Player player){
 
-
-       //Vector forward = cannonLocation.getDirection().setY(0).normalize();
+        //Get the direction to face the furnace
 
         BlockFace face = getClosestFacing(player.getLocation().getYaw());
+
+        //Define the forward vector from the face of the furnace
 
         Vector forward = new Vector(
                 face.getModX(),
@@ -34,46 +36,30 @@ public class Cannon {
         );
 
 
-
         Location furnaceLoc = cannonLocation.clone()
                         .add(forward.clone().multiply(1))
-                        .add(0, 0.45, 0);
+                        .add(0, 0.45, 0);     //Raise the height 0.45 from armor stand base
 
-
-
-        /*
-        Location furnaceLoc = cannonLocation.clone();
-
-        switch (face) {
-            case NORTH -> furnaceLoc.add(0, 0, -2);
-            case SOUTH -> furnaceLoc.add(0, 0, 2);
-            case EAST  -> furnaceLoc.add(2, 0, 0);
-            case WEST  -> furnaceLoc.add(-2, 0, 0);
-        }
-
-         */
 
         furnaceLoc.setYaw(0);
         furnaceLoc.setPitch(0);
 
         Location barrelLoc = furnaceLoc.clone()
                 .add(forward.clone().multiply(1.20))
-                .add(0, 0.45, 0);
+                .add(0, 0.45, 0);    //Can maybe increase to stop transform Y change later
 
         World world = cannonLocation.getWorld();
 
         // Match player yaw but keep the cannon level
         float yaw = player.getLocation().getYaw();
 
-        //get Y height
-       // float pitch = player.getLocation().getPitch();
 
         Location baseLoc = cannonLocation.clone();
         baseLoc.setYaw(yaw);
         baseLoc.setPitch(0);
 
-        // Parent
-        ArmorStand stand = world.spawn(baseLoc, ArmorStand.class, as -> {
+        // Create the parent Armor stand
+        stand = world.spawn(baseLoc, ArmorStand.class, as -> {
             as.setInvisible(false);
             as.setMarker(true);
             as.setGravity(false);
@@ -82,7 +68,7 @@ public class Cannon {
         });
 
         // Base (Blast Furnace)
-        breech = world.spawn(furnaceLoc, BlockDisplay.class, bd -> {
+        blastFurnance = world.spawn(furnaceLoc, BlockDisplay.class, bd -> {
             Directional furnace = (Directional) Bukkit.createBlockData(Material.BLAST_FURNACE);
 
             furnace.setFacing(
@@ -92,7 +78,7 @@ public class Cannon {
             bd.setBlock(furnace);
 
             Transformation t = new Transformation(
-                    new Vector3f(-0.5f, -0.5f, -0.5f),
+                    new Vector3f(-0.5f, -0.5f, -0.5f),  //offset of the 0,0 corner.
                     new Quaternionf(),
                     new Vector3f(1f, 1f, 1f),
                     new Quaternionf()
@@ -107,9 +93,6 @@ public class Cannon {
             id.setItemStack(new ItemStack(Material.LIGHTNING_ROD));
 
             Transformation t = new Transformation(
-
-                    // Offset from blast furnace
-                   // new Vector3f(0f, 0.45f, -0.70f),
 
                     new Vector3f(0f, 0f, 0f),
 
@@ -127,23 +110,13 @@ public class Cannon {
         });
 
 
-        //System.out.println(yaw);
-
-       // System.out.println(getYaw(face));
-
-
         Quaternionf rotation = new Quaternionf()
-                //.rotateY((float)Math.toRadians(-yaw))
-                //.rotateZ((float)Math.toRadians(90));
 
                 // Turn cannon to player direction
                .rotateY((float)Math.toRadians(-getYaw(face)))
 
                 // Lay the lightning rod like a barrel
                 .rotateX((float)Math.toRadians(90));
-
-                // Aim slightly up/down
-              // .rotateX((float)Math.toRadians(pitch));
 
         Transformation t = new Transformation(
                 new Vector3f(0f, -0.5f, 0f),
@@ -154,7 +127,6 @@ public class Cannon {
 
 
         barrel.setTransformation(t);
-
 
         rotateCannon(player);
     }
@@ -200,28 +172,7 @@ public class Cannon {
         );
     }
 
-    private void spawnBlastFurnace(Location base){
 
-        breech = (BlockDisplay) base.getWorld().spawnEntity(
-                base,
-                EntityType.BLOCK_DISPLAY
-        );
-
-        breech.setBlock(Material.BLAST_FURNACE.createBlockData());
-    }
-
-
-    private void spawnLightningRoad(Location base){
-/*
-       barrel = (BlockDisplay) base.getWorld().spawnEntity(
-                base,
-                EntityType.BLOCK_DISPLAY
-        );
-
-        barrel.setBlock(Material.LIGHTNING_ROD.createBlockData());
-
- */
-    }
 
     private void rotateCannon(Player player) {
 
@@ -229,8 +180,27 @@ public class Cannon {
             @Override
             public void run() {
 
-                float yaw = player.getLocation().getYaw();
-                yaw = Math.max(-20, Math.min(20, yaw));
+                //Set max yaw (left to right)
+
+
+                // baseYaw = the yaw the cannon's base/stand is fixed at (e.g. the yaw captured when it was placed)
+                float baseYaw = stand.getLocation().getYaw();
+
+
+                float playerYaw = player.getLocation().getYaw();
+
+// Relative yaw = how far the player has turned away from the cannon's base facing
+                float relativeYaw = playerYaw - baseYaw;
+
+// Normalize to -180..180 so clamping behaves correctly across the wrap-around
+                relativeYaw = ((relativeYaw + 180f) % 360f + 360f) % 360f - 180f;
+
+// Clamp relative to the cannon, not the world
+                float clampedRelativeYaw = Math.max(-20, Math.min(20, relativeYaw));
+
+                // Convert back to world yaw for the actual transform/rotation
+                float finalYaw = baseYaw + clampedRelativeYaw;
+
 
                 // Limit cannon elevation
                 float pitch = player.getLocation().getPitch();
@@ -238,7 +208,7 @@ public class Cannon {
 
                 Quaternionf rotation = new Quaternionf()
                         // Turn cannon to player direction
-                        .rotateY((float)Math.toRadians(-yaw))
+                        .rotateY((float)Math.toRadians(-finalYaw))
 
                         // Lay the lightning rod like a barrel
                         .rotateX((float)Math.toRadians(90))
@@ -257,10 +227,6 @@ public class Cannon {
             }
 
         }.runTaskTimer(Vehicles.getVehicles(), 1L, 1L);
-    }
-
-    public static float getYawFromVector(Vector v) {
-        return (float) Math.toDegrees(Math.atan2(-v.getX(), v.getZ()));
     }
 
 
