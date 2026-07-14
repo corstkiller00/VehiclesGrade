@@ -38,7 +38,7 @@ public class Cannon {
 
         Location furnaceLoc = cannonLocation.clone()
                         .add(forward.clone().multiply(1))
-                        .add(0, 0.45, 0);     //Raise the height 0.45 from armor stand base
+                        .add(0, 0, 0);     //Raise the height 0.45 from armor stand base
 
 
         furnaceLoc.setYaw(0);
@@ -46,7 +46,7 @@ public class Cannon {
 
         Location barrelLoc = furnaceLoc.clone()
                 .add(forward.clone().multiply(1.20))
-                .add(0, 0.45, 0);    //Can maybe increase to stop transform Y change later
+                .add(0, 0.5, 0);    //Can maybe increase to stop transform Y change later
 
         World world = cannonLocation.getWorld();
 
@@ -78,7 +78,7 @@ public class Cannon {
             bd.setBlock(furnace);
 
             Transformation t = new Transformation(
-                    new Vector3f(-0.5f, -0.5f, -0.5f),  //offset of the 0,0 corner.
+                    new Vector3f(-0.5f, 0f, -0.5f),  //offset of the 0,0 corner.
                     new Quaternionf(),
                     new Vector3f(1f, 1f, 1f),
                     new Quaternionf()
@@ -94,7 +94,7 @@ public class Cannon {
 
             Transformation t = new Transformation(
 
-                    new Vector3f(0f, -0.5f, 0f),
+                    new Vector3f(0f, 0f, 0f),
 
                     // Rotate onto its side
                     new Quaternionf()
@@ -204,7 +204,7 @@ public class Cannon {
 
 
                 barrel.setTransformation(new Transformation(
-                        new Vector3f(0f, -0.5f, 0f),
+                        new Vector3f(0f, 0f, 0f),
                         rotation,
                         new Vector3f(1f, 2.2f, 1f),
                         new Quaternionf()
