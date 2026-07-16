@@ -25,3 +25,8 @@ commands:
     description: Shoots a cannon ball
     usage: /shootcannonball
     permission: cannonball.use
+
+  mountstand:
+    description: Shoots a cannon ball
+    usage: /mountstand
+    permission: mountstand.use

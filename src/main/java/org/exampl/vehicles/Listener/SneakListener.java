@@ -5,13 +5,19 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.checkerframework.checker.units.qual.A;
+import org.exampl.vehicles.Cannons.Cannon;
+import org.exampl.vehicles.Cannons.CannonManager;
 import org.exampl.vehicles.ShipCreator.ShipPartType;
 import org.exampl.vehicles.Vehicle.Vehicle;
 import org.exampl.vehicles.Vehicles;
+
+import java.util.UUID;
 
 public class SneakListener implements Listener {
 
@@ -28,6 +34,10 @@ public class SneakListener implements Listener {
             return; // Only when they start sneaking
 
         Player player = event.getPlayer();
+
+        if(player.isInsideVehicle()){
+            return; //return if player is already on a vehicle
+        }
 
         for (Entity entity : player.getNearbyEntities(1, 2, 1)) {
 
@@ -50,6 +60,19 @@ public class SneakListener implements Listener {
                 //vehicle.createVehicle();
                // vehicle.startMovementLoop();
             }
+
+            if (part.equals(ShipPartType.CANNON.name())) {
+                cannonInteract(stand, player);
+            }
+        }
+    }
+
+
+    private void cannonInteract(ArmorStand stand, Player player){
+        org.exampl.vehicles.Cannons.Cannon cannon = CannonManager.getCannonManager().getCannonFromManager(stand.getUniqueId());
+
+        if(cannon != null){
+            cannon.playerUsingStand(player);
         }
     }
 }
