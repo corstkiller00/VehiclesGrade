@@ -3,10 +3,10 @@ package org.exampl.vehicles;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.exampl.vehicles.Commands.LoadShipCommand;
-import org.exampl.vehicles.Commands.SaveShipCommand;
-import org.exampl.vehicles.Commands.SpawnBoatCommand;
+import org.exampl.vehicles.Commands.*;
 import org.exampl.vehicles.Database.DatabaseManager;
+import org.exampl.vehicles.Listener.CannonBallLandListener;
+import org.exampl.vehicles.Listener.DismountArmorStandListener;
 import org.exampl.vehicles.Listener.SneakListener;
 import org.exampl.vehicles.Vehicle.InteractionTask;
 import org.exampl.vehicles.Vehicle.ShipInputListener;
@@ -29,12 +29,16 @@ public final class Vehicles extends JavaPlugin {
         connectDatabase();
         getServer().getPluginManager().registerEvents(new ShipInputListener(), this);
         getServer().getPluginManager().registerEvents(new SneakListener(), this);
+        getServer().getPluginManager().registerEvents(new CannonBallLandListener(), this);
+        getServer().getPluginManager().registerEvents(new DismountArmorStandListener(), this);
         getCommand("spawnboat").setExecutor(new SpawnBoatCommand());
         getCommand("spawnboat").setTabCompleter(new SpawnBoatCommand());
         getCommand("saveship").setExecutor(new SaveShipCommand());
         getCommand("saveship").setTabCompleter(new SaveShipCommand());
         getCommand("loadship").setExecutor(new LoadShipCommand());
         getCommand("loadship").setTabCompleter(new LoadShipCommand());
+        getCommand("shootcannonball").setExecutor(new ShootCannonBall());
+        getCommand("shootcannonball").setTabCompleter(new ShootCannonBall());
         new InteractionTask().runTaskTimer(this, 0L, 20L);
     }
 

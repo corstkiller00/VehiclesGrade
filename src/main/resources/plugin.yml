@@ -20,3 +20,13 @@ commands:
     description: Loads a ship schematic
     usage: /loadship
     permission: loadship.use
+
+  shootcannonball:
+    description: Shoots a cannon ball
+    usage: /shootcannonball
+    permission: cannonball.use
+
+  mountstand:
+    description: Shoots a cannon ball
+    usage: /mountstand
+    permission: mountstand.use
