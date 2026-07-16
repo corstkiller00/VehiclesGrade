@@ -21,7 +21,7 @@ public class Cannon {
     private Quaternionf initialRotation;
     private ArmorStand stand;
 
-    public Cannon(Location cannonLocation, Player player){
+    public Cannon(Location cannonLocation, Player player) {
 
         //Get the direction to face the furnace
 
@@ -35,17 +35,19 @@ public class Cannon {
                 face.getModZ()
         );
 
+        Vector direction = player.getLocation().getDirection();
+
 
         Location furnaceLoc = cannonLocation.clone()
-                        .add(forward.clone().multiply(1))
-                        .add(0, 0, 0);     //Raise the height 0.45 from armor stand base
+                .add(direction.clone().multiply(1))
+                .add(0, 0, 0);     //Raise the height 0.45 from armor stand base
 
 
         furnaceLoc.setYaw(0);
         furnaceLoc.setPitch(0);
 
         Location barrelLoc = furnaceLoc.clone()
-                .add(forward.clone().multiply(1.20))
+                .add(direction.clone().multiply(1.20))
                 .add(0, 0.5, 0);    //Can maybe increase to stop transform Y change later
 
         World world = cannonLocation.getWorld();
@@ -67,6 +69,7 @@ public class Cannon {
             as.setRotation(yaw, 0);
         });
 
+
         // Base (Blast Furnace)
         blastFurnance = world.spawn(furnaceLoc, BlockDisplay.class, bd -> {
             Directional furnace = (Directional) Bukkit.createBlockData(Material.BLAST_FURNACE);
@@ -85,6 +88,7 @@ public class Cannon {
             );
 
             bd.setTransformation(t);
+
         });
 
         // Barrel (Lightning Rod)
@@ -99,10 +103,10 @@ public class Cannon {
                     // Rotate onto its side
                     new Quaternionf()
                             // Turn cannon to player direction
-                            .rotateY((float)Math.toRadians(-getYaw(face)))
+                            .rotateY((float) Math.toRadians(-blastFurnance.getYaw()))
 
                             // Lay the lightning rod like a barrel
-                            .rotateX((float)Math.toRadians(90)),
+                            .rotateX((float) Math.toRadians(90)),
 
                     // Make it longer
                     new Vector3f(1f, 2.2f, 1f),
@@ -131,7 +135,7 @@ public class Cannon {
         new CannonBall(muzzle, direction);
     }
 
-    private void effects(Location spawn, Player player){
+    private void effects(Location spawn, Player player) {
 
         World world = player.getWorld();
 
@@ -156,7 +160,6 @@ public class Cannon {
                 0.7f
         );
     }
-
 
 
     private void rotateCannon(Player player) {
@@ -193,13 +196,13 @@ public class Cannon {
 
                 Quaternionf rotation = new Quaternionf()
                         // Turn cannon to player direction
-                        .rotateY((float)Math.toRadians(-finalYaw))
+                        .rotateY((float) Math.toRadians(-finalYaw))
 
                         // Lay the lightning rod like a barrel
-                        .rotateX((float)Math.toRadians(90))
+                        .rotateX((float) Math.toRadians(90))
 
                         // Aim slightly up/down
-                        .rotateX((float)Math.toRadians(pitch));
+                        .rotateX((float) Math.toRadians(pitch));
 
 
                 barrel.setTransformation(new Transformation(
@@ -242,10 +245,39 @@ public class Cannon {
     public static float getYaw(BlockFace face) {
         return switch (face) {
             case SOUTH -> 0f;
-            case WEST  -> 90f;
+            case WEST -> 90f;
             case NORTH -> 180f;
-            case EAST  -> -90f; // or 270f
-            default    -> 0f;
+            case EAST -> -90f; // or 270f
+            default -> 0f;
         };
+    }
+
+    private void testRotation(BlockDisplay blockDisplay) {
+
+
+
+        new BukkitRunnable() {
+            float rotation = 0.0f;
+            @Override
+            public void run() {
+
+                if(rotation > 360.0f){
+                    rotation = 1.0f;
+                }
+
+                Transformation t = new Transformation(
+                        new Vector3f(-0.5f, 0f, -0.5f),  //offset of the 0,0 corner.
+                        new Quaternionf()
+                                .rotationZ(rotation),
+                        new Vector3f(1f, 1f, 1f),
+                        new Quaternionf()
+                );
+
+                blockDisplay.setTransformation(t);
+
+                rotation = rotation + 1;
+
+            }
+        }.runTaskTimer(Vehicles.getVehicles(), 1L, 1L);
     }
 }
