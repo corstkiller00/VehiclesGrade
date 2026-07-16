@@ -26,7 +26,7 @@ public class CannonBall {
 
         World world =  location.getWorld();
 
-        BlockDisplay cannonball = (BlockDisplay) world.spawnEntity(
+         cannonball = (BlockDisplay) world.spawnEntity(
                 location,
                 EntityType.BLOCK_DISPLAY
         );

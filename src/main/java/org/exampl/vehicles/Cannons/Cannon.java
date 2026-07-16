@@ -20,6 +20,8 @@ public class Cannon {
     private Interaction pivot;
     private Quaternionf initialRotation;
     private ArmorStand stand;
+    private float cannonYaw;
+    private float cannonPitch;
 
     public Cannon(Location cannonLocation, Player player) {
 
@@ -117,27 +119,31 @@ public class Cannon {
             id.setTransformation(t);
         });
 
+       // testShoot();
         rotateCannon(player);
     }
 
     public void shoot() {
 
-        Location pivotLoc = pivot.getLocation();
 
         // Direction the cannon is pointing
-        Vector direction = pivotLoc.getDirection().normalize();
+       // Vector direction = barrel.getLocation().getDirection();
+
+        Vector direction = getDirectionFromYawPitch(cannonYaw, cannonPitch);
 
         // Spawn the cannonball slightly in front of the barrel
-        Location muzzle = pivotLoc.clone()
-                .add(direction.multiply(2.2))
-                .add(0, 0.35, 0);
+        Location muzzle = barrel.getLocation().clone()
+                .add(direction.multiply(1.5))
+                .add(-0.5, 0.0, -0.5);
+
+        effects(muzzle);
 
         new CannonBall(muzzle, direction);
     }
 
-    private void effects(Location spawn, Player player) {
+    private void effects(Location spawn) {
 
-        World world = player.getWorld();
+        World world = spawn.getWorld();
 
         world.spawnParticle(
                 Particle.SMOKE,
@@ -187,22 +193,22 @@ public class Cannon {
                 float clampedRelativeYaw = Math.max(-20, Math.min(20, relativeYaw));
 
                 // Convert back to world yaw for the actual transform/rotation
-                float finalYaw = baseYaw + clampedRelativeYaw;
+                cannonYaw = baseYaw + clampedRelativeYaw;
 
 
                 // Limit cannon elevation
                 float pitch = player.getLocation().getPitch();
-                pitch = Math.max(-20, Math.min(20, pitch));
+                cannonPitch = Math.max(-20, Math.min(20, pitch));
 
                 Quaternionf rotation = new Quaternionf()
                         // Turn cannon to player direction
-                        .rotateY((float) Math.toRadians(-finalYaw))
+                        .rotateY((float) Math.toRadians(-cannonYaw))
 
                         // Lay the lightning rod like a barrel
                         .rotateX((float) Math.toRadians(90))
 
                         // Aim slightly up/down
-                        .rotateX((float) Math.toRadians(pitch));
+                        .rotateX((float) Math.toRadians(cannonPitch));
 
 
                 barrel.setTransformation(new Transformation(
@@ -279,5 +285,31 @@ public class Cannon {
 
             }
         }.runTaskTimer(Vehicles.getVehicles(), 1L, 1L);
+    }
+
+
+    private void testShoot() {
+
+
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+
+              shoot();
+            }
+        }.runTaskTimer(Vehicles.getVehicles(), 1L, 60L);
+    }
+
+
+    private Vector getDirectionFromYawPitch(float yaw, float pitch) {
+        double yawRad = Math.toRadians(yaw);
+        double pitchRad = Math.toRadians(pitch);
+
+        double x = -Math.sin(yawRad) * Math.cos(pitchRad);
+        double y = -Math.sin(pitchRad);
+        double z = Math.cos(yawRad) * Math.cos(pitchRad);
+
+        return new Vector(x, y, z);
     }
 }
