@@ -16,6 +16,7 @@ import org.exampl.vehicles.Cannons.CannonManager;
 import org.exampl.vehicles.ShipCreator.ShipPartType;
 import org.exampl.vehicles.Vehicle.Vehicle;
 import org.exampl.vehicles.Vehicles;
+import org.exampl.vehicles.helper.MountManager;
 
 import java.util.UUID;
 
@@ -72,6 +73,8 @@ public class SneakListener implements Listener {
         org.exampl.vehicles.Cannons.Cannon cannon = CannonManager.getCannonManager().getCannonFromManager(stand.getUniqueId());
 
         if(cannon != null){
+            MountManager.getMountManager().addPlayerToManager(player);
+            MountManager.getMountManager().removePlayerFromManagerInOneTick(player);
             cannon.playerUsingStand(player);
         }
     }
