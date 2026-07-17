@@ -31,14 +31,18 @@ public class Cannon {
     public Cannon(ArmorStand stand) {
 
         this.stand = stand;
-
         CannonManager.getCannonManager().addCannonToManager(this.stand.getUniqueId(), this);
-
-        Location cannonLocation = this.stand.getLocation();
 
         //Get the direction to face the furnace
 
         BlockFace face = getClosestFacing(stand.getLocation().getYaw());
+
+        //Set the stand to the neared NESW direction
+
+        this.stand.setRotation(getYaw(face), 0f);
+
+        Location cannonLocation = this.stand.getLocation();
+
 
         //Define the forward vector from the face of the furnace
 
@@ -48,12 +52,8 @@ public class Cannon {
                 face.getModZ()
         );
 
-        Vector direction = this.stand.getLocation().getDirection();
-
-
-
         Location furnaceLoc = cannonLocation.clone()
-                .add(direction.clone().multiply(1))
+                .add(forward.clone().multiply(1))
                 .add(0, 0, 0);     //Raise the height 0.45 from armor stand base
 
 
@@ -61,7 +61,7 @@ public class Cannon {
         furnaceLoc.setPitch(0);
 
         Location barrelLoc = furnaceLoc.clone()
-                .add(direction.clone().multiply(1.20))
+                .add(forward.clone().multiply(1.20))
                 .add(0, 0.5, 0);    //Can maybe increase to stop transform Y change later
 
         World world = cannonLocation.getWorld();
