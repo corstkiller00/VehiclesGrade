@@ -7,6 +7,7 @@ import org.exampl.vehicles.Commands.*;
 import org.exampl.vehicles.Database.DatabaseManager;
 import org.exampl.vehicles.Listener.CannonBallLandListener;
 import org.exampl.vehicles.Listener.DismountArmorStandListener;
+import org.exampl.vehicles.Listener.PlayerJumpListener;
 import org.exampl.vehicles.Listener.SneakListener;
 import org.exampl.vehicles.Vehicle.InteractionTask;
 import org.exampl.vehicles.Vehicle.ShipInputListener;
@@ -31,6 +32,7 @@ public final class Vehicles extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new SneakListener(), this);
         getServer().getPluginManager().registerEvents(new CannonBallLandListener(), this);
         getServer().getPluginManager().registerEvents(new DismountArmorStandListener(), this);
+        getServer().getPluginManager().registerEvents(new PlayerJumpListener(), this);
         getCommand("spawnboat").setExecutor(new SpawnBoatCommand());
         getCommand("spawnboat").setTabCompleter(new SpawnBoatCommand());
         getCommand("saveship").setExecutor(new SaveShipCommand());
