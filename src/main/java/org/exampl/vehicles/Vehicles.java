@@ -39,8 +39,10 @@ public final class Vehicles extends JavaPlugin {
         getCommand("saveship").setTabCompleter(new SaveShipCommand());
         getCommand("loadship").setExecutor(new LoadShipCommand());
         getCommand("loadship").setTabCompleter(new LoadShipCommand());
-        getCommand("shootcannonball").setExecutor(new ShootCannonBall());
-        getCommand("shootcannonball").setTabCompleter(new ShootCannonBall());
+        getCommand("spawncannon").setExecutor(new SpawnCannonCommand());
+        getCommand("spawncannon").setTabCompleter(new SpawnCannonCommand());
+        getCommand("spawnwheel").setExecutor(new SpawnWheelCommand());
+        getCommand("spawnwheel").setTabCompleter(new SpawnCannonCommand());
         new InteractionTask().runTaskTimer(this, 0L, 20L);
     }
 

@@ -9,7 +9,9 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
+import org.exampl.vehicles.ShipCreator.ArmorStandData;
 import org.exampl.vehicles.ShipCreator.ShipPartType;
+import org.exampl.vehicles.Vehicle.Block;
 import org.exampl.vehicles.Vehicles;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -17,6 +19,7 @@ import org.joml.Vector3f;
 public class Cannon {
 
     private ArmorStand armorStands;
+    private ArmorStandData armorStandData;
     private BlockDisplay blastFurnance;
     private ItemDisplay barrel;
     private Interaction pivot;
@@ -24,18 +27,49 @@ public class Cannon {
     private float cannonYaw;
     private float cannonPitch;
     private final ArmorStand stand;
+    private Vector furnanceOffset;
+    private float cannonFacingYawAdjust;
+    private boolean rotationBarrelSet = false;
 
 
+    public ArmorStand getArmorStands() {
+        return armorStands;
+    }
 
+    public ArmorStand getArmorStand() {
+        return stand;
+    }
 
-    public Cannon(ArmorStand stand) {
+    public float getCannonFacingYawAdjust() {
+        return cannonFacingYawAdjust;
+    }
+
+    public ItemDisplay getBarrel() {
+        return barrel;
+    }
+
+    public BlockDisplay getBlastFurnance() {
+        return blastFurnance;
+    }
+
+    public ArmorStandData getArmorStandData() {
+        return armorStandData;
+    }
+
+    public Cannon(ArmorStand stand, ArmorStandData armorStandData) {
 
         this.stand = stand;
         CannonManager.getCannonManager().addCannonToManager(this.stand.getUniqueId(), this);
 
+        this.armorStandData = armorStandData;
+
         //Get the direction to face the furnace
 
+
+
         BlockFace face = getClosestFacing(stand.getLocation().getYaw());
+
+        cannonFacingYawAdjust = getYaw(face);
 
         //Set the stand to the neared NESW direction
 
@@ -94,9 +128,10 @@ public class Cannon {
         blastFurnance = world.spawn(furnaceLoc, BlockDisplay.class, bd -> {
             Directional furnace = (Directional) Bukkit.createBlockData(Material.BLAST_FURNACE);
 
-            furnace.setFacing(
-                    getClosestFacing(this.stand.getLocation().getYaw())
-            );
+            //furnace.setFacing(
+                  //  getClosestFacing(this.stand.getLocation().getYaw())
+            furnace.setFacing(getFurnanceFacingDirection());
+
 
             bd.setBlock(furnace);
 
@@ -139,7 +174,13 @@ public class Cannon {
 
         });
 
+        blastFurnance.setInterpolationDuration(2);
+        blastFurnance.setInterpolationDelay(0);
+        blastFurnance.setTeleportDuration(2);
 
+        blastFurnance.setInterpolationDuration(2);
+        blastFurnance.setInterpolationDelay(0);
+        blastFurnance.setTeleportDuration(2);
 
         // testShoot();
       //  rotateCannon(player);
@@ -363,6 +404,79 @@ public class Cannon {
         rotateCannon(player);
     }
 
+    public void renderCannon(double cachedYaw, Location cachedCentre) {
+
+        //Do the furnance first
+
+            Vector forward = new Vector(
+                    -Math.sin(cachedYaw),
+                    0,
+                    Math.cos(cachedYaw)
+            ).normalize();
+
+            Location target = cachedCentre.clone().add(forward);
+
+            blastFurnance.teleport(target);
+
+            //Do the Barrel
+
+        if(!rotationBarrelSet) {
+
+            Transformation t = new Transformation(
+
+                    new Vector3f(0f, 0f, 0f),
+
+                    // Rotate onto its side
+                    new Quaternionf()
+                            // Turn cannon to player direction
+                            .rotateY((float) Math.toRadians(-stand.getYaw()))
+
+                            // Lay the lightning rod like a barrel
+                            .rotateX((float) Math.toRadians(90)),
+
+                    // Make it longer
+                    new Vector3f(1f, 2.2f, 1f),
+
+                    new Quaternionf()
+            );
+
+
+
+            barrel.setTransformation(t);
+
+            System.out.println("stand yaw: " + stand.getYaw());
+            System.out.println("barrel yaw: " + barrel.getYaw());
+
+            this.rotationBarrelSet = true;
+        }
+
+
+
+        Vector front = new Vector(
+                -Math.sin(cachedYaw),
+                0,
+                Math.cos(cachedYaw)
+        ).normalize();
+
+
+
+        Location barrelTarget = target.clone()
+                .add(front.clone().multiply(1.20))
+                .add(0, 0.5, 0);
+
+        barrelTarget.setYaw(0f);
+        barrelTarget.setPitch(0f);
+
+        barrel.teleport(barrelTarget);
+
+
+        //Need to have a look at spanwing the armor stand in the correct place on the
+        //ship in first place to make this easier.
+        //Also an odd angle on the barrel.
+
+
+        }
+
 
 
     private BlockFace getClosestFacing(float yaw) {
@@ -397,6 +511,19 @@ public class Cannon {
             case EAST -> -90f; // or 270f
             default -> 0f;
         };
+    }
+
+
+    private BlockFace getFurnanceFacingDirection(){
+        double yaw = this.stand.getYaw();
+
+        //Only does port and starboard right now
+
+        if (yaw >= 45 && yaw < 135) {
+            return BlockFace.SOUTH;
+        }else{
+            return BlockFace.NORTH;
+        }
     }
 
     private void testRotation(BlockDisplay blockDisplay) {
@@ -463,5 +590,9 @@ public class Cannon {
                 PersistentDataType.STRING,
                 ShipPartType.CANNON.name()
         );
+    }
+
+    public void removeCannon(){
+        this.stand.remove();
     }
 }

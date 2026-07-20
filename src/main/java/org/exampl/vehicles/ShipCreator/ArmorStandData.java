@@ -1,5 +1,9 @@
 package org.exampl.vehicles.ShipCreator;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.BlockDisplay;
+import org.bukkit.util.Vector;
+
 public class ArmorStandData {
 
         private double x;
@@ -10,6 +14,7 @@ public class ArmorStandData {
         private float pitch;
 
         private String customName;
+        private final Vector offsetPosition;
 
         private boolean invisible;
         private boolean marker;
@@ -30,6 +35,7 @@ public class ArmorStandData {
         this.small = small;
         this.arms = arms;
         this.basePlate = basePlate;
+        this.offsetPosition = new Vector(x, y, z);
 
     }
 
@@ -83,6 +89,10 @@ public class ArmorStandData {
 
     public void setPartType(String partType) {
         this.partType = partType;
+    }
+
+    public Vector getOffsetPosition() {
+        return offsetPosition;
     }
 }
 

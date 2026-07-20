@@ -33,6 +33,7 @@ public class InvisibleVehicle {
             as.setGravity(false);   //Needs to be true
             as.setSmall(true);
             as.setInvulnerable(true);
+            as.setRotation(player.getYaw(), 0);
         });
 
         stand.addPassenger(player);

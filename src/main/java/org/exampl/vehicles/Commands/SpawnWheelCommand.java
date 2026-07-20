@@ -9,15 +9,13 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataType;
 import org.exampl.vehicles.Cannons.Cannon;
-import org.exampl.vehicles.Cannons.CannonBall;
 import org.exampl.vehicles.ShipCreator.ShipPartType;
-import org.exampl.vehicles.Vehicle.Vehicle;
 import org.exampl.vehicles.Vehicles;
 
 import java.util.Collections;
 import java.util.List;
 
-public class ShootCannonBall implements CommandExecutor, TabCompleter {
+public class SpawnWheelCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -38,14 +36,13 @@ public class ShootCannonBall implements CommandExecutor, TabCompleter {
             as.setInvisible(false);
             as.setGravity(false);
             as.setInvulnerable(true);
-           // as.setSmall(true);
+            as.setSmall(true);
             as.setRotation(player.getYaw(), 0);
         });
 
         setPersistentDataContainer(stand);
 
-        new Cannon(stand);
-        //new Cannon(player.getLocation(), player);
+        //new Cannon(stand);
         return true;
     }
 
@@ -60,7 +57,7 @@ public class ShootCannonBall implements CommandExecutor, TabCompleter {
         stand.getPersistentDataContainer().set(
                 key,
                 PersistentDataType.STRING,
-                ShipPartType.CANNON.name()
+                ShipPartType.WHEEL.name()
         );
     }
 }
