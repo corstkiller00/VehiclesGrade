@@ -72,6 +72,7 @@ public class BlockScraper {
             }
         }
 
+        //Save ArmorStands
 
         List<ArmorStandData> armorStands = new ArrayList<>();
 

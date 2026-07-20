@@ -1,9 +1,6 @@
 package org.exampl.vehicles.Vehicle;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.entity.CraftArmorStand;
 import org.bukkit.entity.ArmorStand;
@@ -13,6 +10,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
+import org.exampl.vehicles.Cannons.Cannon;
+import org.exampl.vehicles.ShipCreator.ArmorStandData;
 import org.exampl.vehicles.ShipCreator.RelativeBlock;
 import org.exampl.vehicles.ShipCreator.ShipStructure;
 import org.exampl.vehicles.Vehicles;
@@ -38,6 +37,7 @@ public class Vehicle {
     private Location cachedCentre;
     private double cachedYaw;
     private boolean fullSpeed = false;
+    private ArrayList<Cannon> cannons = new ArrayList<>();
 
 
     public boolean isSailsDown() {
@@ -111,15 +111,15 @@ public class Vehicle {
         player.getInventory().setHeldItemSlot(0);
     }
 
-    private void createBlocks(List<RelativeBlock> blocks){
+    private void createBlocks(List<RelativeBlock> blocks) {
 
         org.exampl.vehicles.Vehicle.VehiclesList.getVehiclesList().addVehicleToList(this.invisibleVehicle.getStand().getUniqueId(), this);
 
-        for(RelativeBlock block : blocks){
+        for (RelativeBlock block : blocks) {
 
             BlockData blockData = Bukkit.createBlockData(block.getBlockData());
 
-            if(blockData.getMaterial().equals(Material.AIR)){
+            if (blockData.getMaterial().equals(Material.AIR)) {
                 continue;
             }
 
@@ -129,6 +129,31 @@ public class Vehicle {
         }
 
         player.getInventory().setHeldItemSlot(0);
+    }
+
+    private void createArmorStands(List<ArmorStandData> armorStands) {
+
+        World world = this.player.getWorld();
+
+        for (ArmorStandData standData: armorStands) {
+
+            Location spawnLocation = this.invisibleVehicle.getStand().getLocation().clone().add(standData.getOffsetPosition());
+
+           ArmorStand armorStand =  world.spawn(spawnLocation, ArmorStand.class);
+
+            armorStand.setRotation(standData.getYaw(), standData.getPitch());
+           // armorStand.setRotation(getCannonRotationYaw(standData.getYaw()), 0);
+            armorStand.setInvisible(standData.isInvisible());
+            armorStand.setMarker(standData.isMarker());
+            armorStand.setSmall(standData.isSmall());
+            armorStand.setArms(standData.hasArms());
+            armorStand.setBasePlate(standData.hasBasePlate());
+            armorStand.setGravity(false);
+
+            System.out.println(armorStand.getYaw());
+
+            cannons.add(new Cannon(armorStand, standData));
+        }
     }
 
     public void createVehicleFromSave(){
@@ -147,6 +172,7 @@ public class Vehicle {
             ShipStructure ship = Vehicles.getVehicles().getGson().fromJson(reader, ShipStructure.class);
 
             createBlocks(ship.getBlocks());
+            createArmorStands(ship.getArmorStands());
 
         }catch (IOException e) {
             e.printStackTrace();
@@ -186,6 +212,12 @@ public class Vehicle {
     private void deleteBlocksInVehicle(){
         for (Block block : blocks) {
             block.getBlockDisplay().remove();
+        }
+    }
+
+    private void deleteCannonsInVehicle(){
+        for(Cannon cannon : this.cannons){
+           cannon.removeCannon();
         }
     }
 
@@ -242,6 +274,66 @@ public class Vehicle {
 
     }
 
+
+    private void renderCannons() {
+
+        for (Cannon cannon : cannons) {
+
+            Vector offset =  cannon.getArmorStandData().getOffsetPosition();
+
+            Vector forward = new Vector(
+                    -Math.sin(cachedYaw),
+                    0,
+                    Math.cos(cachedYaw)
+            ).normalize();
+
+            Vector right = forward.clone()
+                    .crossProduct(new Vector(0, 1, 0))
+                    .normalize();
+
+            /*
+            Vector worldOffset =
+                    right.multiply(offset.getX())
+                            .add(forward.multiply(offset.getZ()));
+
+             */
+
+            Vector worldOffset = right.multiply(offset.getX())
+                    .add(forward.multiply(offset.getZ()))
+                    .setY(offset.getY());
+
+            Location target = cachedCentre.clone().add(worldOffset);
+
+            ArmorStand armorStand = cannon.getArmorStand();
+
+            armorStand.teleport(target);
+
+            Location base = invisibleVehicle.getStand().getLocation().clone()
+                    .add(0, invisibleVehicle.getStand().getHeight() / 2.0, 0);
+
+            // Body yaw (world)
+            float bodyYaw = base.getYaw();
+
+// Head pose yaw (local, radians)
+            double headYawRad = invisibleVehicle.getStand().getHeadPose().getY();
+
+// Combine
+            double finalYawRadBeforeCannon = Math.toRadians(bodyYaw) + headYawRad;
+
+            double yawOfCannonStand = cannon.getCannonFacingYawAdjust();
+
+            double finalYawRad = Math.toRadians(yawOfCannonStand) + finalYawRadBeforeCannon;
+
+            float yawDegT = (float) Math.toDegrees(finalYawRad);
+
+           armorStand.setRotation(yawDegT, 0f);
+
+           cannon.renderCannon(Math.toRadians(armorStand.getYaw()), armorStand.getLocation());
+        }
+
+
+    }
+
     public void startMovementLoop() {
 
         new BukkitRunnable() {
@@ -254,6 +346,7 @@ public class Vehicle {
                     cancel();
                     invisibleVehicle.getStand().remove();
                     deleteBlocksInVehicle();
+                    deleteCannonsInVehicle();
 
                     VehiclesList.getVehiclesList()
                             .removeVehicleFromList(invisibleVehicle.getStand().getUniqueId());
@@ -343,11 +436,35 @@ public class Vehicle {
                 cachedCentre = invisibleVehicle.getStand().getLocation().clone()
                         .add(0, invisibleVehicle.getStand().getHeight() / 2.0, 0);
 
+
+                //The blocks do not spawn in the right way before render blocks
+                //The armor stand rotation might always be set 1 way. set
+                // to the way the player will be looking
                 renderBlocks();
+                renderCannons();
 
             }
         }.runTaskTimer(Vehicles.getVehicles(), 1L, 1L);
     }
 
+
+    private float getCannonRotationYaw(double standRotationOffset){
+
+        Location base = invisibleVehicle.getStand().getLocation().clone()
+                .add(0, invisibleVehicle.getStand().getHeight() / 2.0, 0);
+
+        // Body yaw (world)
+        float bodyYaw = base.getYaw();
+
+// Head pose yaw (local, radians)
+        double headYawRad = invisibleVehicle.getStand().getHeadPose().getY();
+
+// Combine
+        double finalYawRadBeforeCannon = Math.toRadians(bodyYaw) + headYawRad;
+
+        double finalYawRad = Math.toRadians(standRotationOffset) + finalYawRadBeforeCannon;
+
+        return (float) Math.toDegrees(finalYawRad);
+    }
 
 }

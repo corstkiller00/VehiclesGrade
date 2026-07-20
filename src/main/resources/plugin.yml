@@ -21,12 +21,12 @@ commands:
     usage: /loadship
     permission: loadship.use
 
-  shootcannonball:
-    description: Shoots a cannon ball
-    usage: /shootcannonball
-    permission: cannonball.use
+  spawncannon:
+    description: spawn a cannon
+    usage: /spawncannon
+    permission: spawncannon.use
 
-  mountstand:
-    description: Shoots a cannon ball
-    usage: /mountstand
-    permission: mountstand.use
+  spawnwheel:
+    description: spawn a ship wheel
+    usage: /spawnwheel
+    permission: spawnwheel.use
