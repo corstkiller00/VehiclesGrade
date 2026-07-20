@@ -174,7 +174,13 @@ public class Cannon {
 
         });
 
+        blastFurnance.setInterpolationDuration(2);
+        blastFurnance.setInterpolationDelay(0);
+        blastFurnance.setTeleportDuration(2);
 
+        blastFurnance.setInterpolationDuration(2);
+        blastFurnance.setInterpolationDelay(0);
+        blastFurnance.setTeleportDuration(2);
 
         // testShoot();
       //  rotateCannon(player);
@@ -434,7 +440,12 @@ public class Cannon {
                     new Quaternionf()
             );
 
+
+
             barrel.setTransformation(t);
+
+            System.out.println("stand yaw: " + stand.getYaw());
+            System.out.println("barrel yaw: " + barrel.getYaw());
 
             this.rotationBarrelSet = true;
         }
@@ -447,9 +458,14 @@ public class Cannon {
                 Math.cos(cachedYaw)
         ).normalize();
 
+
+
         Location barrelTarget = target.clone()
                 .add(front.clone().multiply(1.20))
                 .add(0, 0.5, 0);
+
+        barrelTarget.setYaw(0f);
+        barrelTarget.setPitch(0f);
 
         barrel.teleport(barrelTarget);
 
