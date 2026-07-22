@@ -28,7 +28,7 @@ public class Vehicle {
     private final org.exampl.vehicles.Vehicle.InvisibleVehicle invisibleVehicle;
     private ArrayList<org.exampl.vehicles.Vehicle.Block> blocks = new ArrayList<>();
     private String name;
-    private final double maxSpeed = 0.1;
+    private final double maxSpeed = 0.1;   //was 0.1
     private double acceleration = 0.002;
     private double currentSpeed = 0.0;
     private Player player;
@@ -149,8 +149,6 @@ public class Vehicle {
             armorStand.setArms(standData.hasArms());
             armorStand.setBasePlate(standData.hasBasePlate());
             armorStand.setGravity(false);
-
-            System.out.println(armorStand.getYaw());
 
             cannons.add(new Cannon(armorStand, standData));
         }
@@ -418,6 +416,8 @@ public class Vehicle {
                 float yaw = invisibleVehicle.getStand().getLocation().getYaw();
                 float pitch = invisibleVehicle.getStand().getLocation().getPitch();
 
+
+
                 nms.absMoveTo(
                         loc.getX(),
                         loc.getY(),
@@ -444,7 +444,7 @@ public class Vehicle {
                 renderCannons();
 
             }
-        }.runTaskTimer(Vehicles.getVehicles(), 1L, 1L);
+        }.runTaskTimer(Vehicles.getVehicles(), 1L, 1L); //was 1
     }
 
 

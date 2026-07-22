@@ -30,7 +30,7 @@ public class InvisibleVehicle {
 
         this.stand = player.getWorld().spawn(spawnLocation, ArmorStand.class, as -> {
             as.setInvisible(false);
-            as.setGravity(false);   //Needs to be true
+            as.setGravity(false);
             as.setSmall(true);
             as.setInvulnerable(true);
             as.setRotation(player.getYaw(), 0);
@@ -110,8 +110,6 @@ public class InvisibleVehicle {
                 lowestYBlock = relativeBlock.getY();
             }
         }
-
-        System.out.println(lowestYBlock);
         return Math.abs(lowestYBlock);
     }
 

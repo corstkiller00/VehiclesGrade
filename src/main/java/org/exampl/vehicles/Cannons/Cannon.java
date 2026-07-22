@@ -174,13 +174,13 @@ public class Cannon {
 
         });
 
-        blastFurnance.setInterpolationDuration(2);
+        blastFurnance.setInterpolationDuration(2);  //was 2
         blastFurnance.setInterpolationDelay(0);
-        blastFurnance.setTeleportDuration(2);
+        blastFurnance.setTeleportDuration(2); //was 2
 
-        blastFurnance.setInterpolationDuration(2);
-        blastFurnance.setInterpolationDelay(0);
-        blastFurnance.setTeleportDuration(2);
+        barrel.setInterpolationDuration(2);
+        barrel.setInterpolationDelay(0);
+        barrel.setTeleportDuration(2);
 
         // testShoot();
       //  rotateCannon(player);
@@ -420,7 +420,7 @@ public class Cannon {
 
             //Do the Barrel
 
-        if(!rotationBarrelSet) {
+
 
             Transformation t = new Transformation(
 
@@ -440,16 +440,7 @@ public class Cannon {
                     new Quaternionf()
             );
 
-
-
             barrel.setTransformation(t);
-
-            System.out.println("stand yaw: " + stand.getYaw());
-            System.out.println("barrel yaw: " + barrel.getYaw());
-
-            this.rotationBarrelSet = true;
-        }
-
 
 
         Vector front = new Vector(
@@ -594,5 +585,7 @@ public class Cannon {
 
     public void removeCannon(){
         this.stand.remove();
+        this.blastFurnance.remove();
+        this.barrel.remove();
     }
 }
