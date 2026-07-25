@@ -82,7 +82,7 @@ public class InvisibleVehicle {
             if (current.getType() != Material.WATER)
                 continue;
 
-            Block above = world.getBlockAt(x, y + (1 + lowestYBlock), z);
+            Block above = world.getBlockAt(x, y + (lowestYBlock - 1), z);
 
             if (!above.isPassable())
                 continue;
