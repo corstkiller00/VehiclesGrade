@@ -63,7 +63,7 @@ public class SneakListener implements Listener {
             }
 
             if (part.equals(ShipPartType.CANNON.name())) {
-                cannonInteract(stand, player);
+               // cannonInteract(stand, player);
             }
         }
     }

@@ -14,7 +14,7 @@ import org.exampl.vehicles.Vehicles;
 public class InvisibleVehicle {
 
     private final ArmorStand stand;
-    private final Player player;
+    private Player player;
 
     public InvisibleVehicle(Player player, ShipStructure ship) {
         this.player = player;
@@ -119,5 +119,9 @@ public class InvisibleVehicle {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public void removePlayerFromWheel(){
+        this.player = null;
     }
 }

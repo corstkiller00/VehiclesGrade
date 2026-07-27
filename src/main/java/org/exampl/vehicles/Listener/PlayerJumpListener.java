@@ -42,11 +42,14 @@ public class PlayerJumpListener implements Listener {
 
             PersistentDataContainer pdc = stand.getPersistentDataContainer();
 
+
             if (!pdc.has(partKey, PersistentDataType.STRING)) {
+                System.out.println("True");
                 return;
             }
 
             String part = pdc.get(partKey, PersistentDataType.STRING);
+
 
             if(part == null){
                 return;
