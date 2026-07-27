@@ -89,6 +89,15 @@ public class HotbarSnapshot {
         anchorMeta.lore(loreListAnchor);
         anchor.setItemMeta(anchorMeta);
         player.getInventory().setItem(5, anchor);
+
+        ItemStack switchSeat = new ItemStack(Material.IRON_INGOT);
+        ItemMeta switchSeatMeta = switchSeat.getItemMeta();
+        switchSeatMeta.displayName(Component.text("Switch seat", NamedTextColor.GOLD));
+        List loreListSwitchSeat = new ArrayList();
+        loreListSwitchSeat.add(Component.text("Switch seat", NamedTextColor.GOLD));
+        switchSeatMeta.lore(loreListSwitchSeat);
+        switchSeat.setItemMeta(switchSeatMeta);
+        player.getInventory().setItem(8, switchSeat);
     }
 
     public Player getPlayer() {

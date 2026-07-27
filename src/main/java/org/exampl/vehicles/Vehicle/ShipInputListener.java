@@ -99,6 +99,10 @@ public class ShipInputListener implements Listener {
                 }
 // Statements
                 break;
+
+            case "§6Switch seat":
+                vehicle.movePlayerToNextSeat(player);
+                break;
 // You can have any number of case statements
             default:
 // Default statements

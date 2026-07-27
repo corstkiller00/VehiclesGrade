@@ -1,13 +1,13 @@
 package org.exampl.vehicles.Vehicle;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import org.bukkit.entity.ArmorStand;
+
+import java.util.*;
 
 public class VehiclesList {
 
     private static VehiclesList vehiclesList;
-    private Map<UUID, Vehicle> vehicles = new HashMap<>();
+    private Map<ArrayList<ArmorStand>, Vehicle> vehicles = new HashMap<>();
 
     private VehiclesList (){}
 
@@ -18,8 +18,8 @@ public class VehiclesList {
         return vehiclesList;
     }
 
-    public void addVehicleToList(UUID uuid, Vehicle vehicle){
-        vehicles.put(uuid, vehicle);
+    public void addVehicleToList(ArrayList<ArmorStand> armorStands, Vehicle vehicle){
+        vehicles.put(armorStands, vehicle);
     }
 
     public void removeVehicleFromList(UUID uuid){
@@ -27,7 +27,15 @@ public class VehiclesList {
     }
 
     public Vehicle getVehicleFromList(UUID uuid){
-        return vehicles.get(uuid);
+
+        for (Map.Entry<ArrayList<ArmorStand>, Vehicle> entry : vehicles.entrySet()) {
+            for (ArmorStand stand : entry.getKey()) {
+                if (stand.getUniqueId().equals(uuid)) {
+                    return entry.getValue();
+                }
+            }
+        }
+        return null;
     }
 
 }

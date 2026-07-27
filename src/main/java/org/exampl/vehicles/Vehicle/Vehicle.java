@@ -7,13 +7,18 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.BlockDisplay;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.EulerAngle;
 import org.bukkit.util.Vector;
 import org.exampl.vehicles.Cannons.Cannon;
 import org.exampl.vehicles.ShipCreator.ArmorStandData;
 import org.exampl.vehicles.ShipCreator.RelativeBlock;
 import org.exampl.vehicles.ShipCreator.ShipStructure;
+import org.exampl.vehicles.Vehicle.Seats.CannonSeat;
+import org.exampl.vehicles.Vehicle.Seats.Seat;
+import org.exampl.vehicles.Vehicle.Seats.WheelSeat;
 import org.exampl.vehicles.Vehicles;
 
 import java.io.File;
@@ -37,8 +42,10 @@ public class Vehicle {
     private Location cachedCentre;
     private double cachedYaw;
     private boolean fullSpeed = false;
+    private BukkitTask vehicleTask;
+    private ArrayList<ArmorStand> armorStands = new ArrayList<>();
     private ArrayList<Cannon> cannons = new ArrayList<>();
-
+    private ArrayList<Seat> seats = new ArrayList<>();
 
     public boolean isSailsDown() {
         return sailsDown;
@@ -71,11 +78,14 @@ public class Vehicle {
     public Vehicle(Player player) {
         this.invisibleVehicle = createInvisibleVehicle(player);
 
-        if (this.invisibleVehicle == null)
+        if (this.invisibleVehicle == null) {
             return;
+        }
 
         this.player = player;
         this.name = name;
+
+        this.seats.add(new WheelSeat(this.getInvisibleVehicle().getStand()));
     }
 
     public org.exampl.vehicles.Vehicle.InvisibleVehicle getInvisibleVehicle() {
@@ -93,6 +103,61 @@ public class Vehicle {
         }
     }
 
+    private Seat getNextSeat(Player player){
+
+        Seat currentSeat = getPlayersCurrentSeat(player);
+
+        if(currentSeat != null){
+
+            int nextSeatIndex;
+
+            int seatIndex = this.seats.indexOf(currentSeat);
+
+            if(seatIndex == (this.seats.size() - 1)){
+                nextSeatIndex = 0;
+            }else{
+                nextSeatIndex = seatIndex + 1;
+            }
+
+            return this.seats.get(nextSeatIndex);
+        }
+
+        return null;
+
+    }
+
+    private Seat getPlayersCurrentSeat(Player player){
+
+        for(Seat seat : this.seats){
+
+            if(seat.getPlayerOnSeat() == null){
+                continue;
+            }
+
+            if(seat.getPlayerOnSeat().equals(player)){
+                return seat;
+            }
+        }
+
+        return null;
+    }
+
+    public void movePlayerToNextSeat(Player player){
+
+        Seat nextSeat = getNextSeat(player);
+
+        if(nextSeat != null){
+
+            if(nextSeat instanceof WheelSeat wheelSeat){
+                wheelSeat.mountSeat(player);
+            }
+
+            if(nextSeat instanceof CannonSeat cannonSeat){
+                cannonSeat.mountSeat(player);
+            }
+        }
+    }
+
     public void changeHeadPoseRotation(double degrees){
         ArmorStand stand = this.invisibleVehicle.getStand();
 
@@ -103,7 +168,7 @@ public class Vehicle {
     }
 
     public void createVehicle() {
-        org.exampl.vehicles.Vehicle.VehiclesList.getVehiclesList().addVehicleToList(this.invisibleVehicle.getStand().getUniqueId(), this);
+       // org.exampl.vehicles.Vehicle.VehiclesList.getVehiclesList().addVehicleToList(this.invisibleVehicle.getStand().getUniqueId(), this);
         org.exampl.vehicles.Vehicle.Block block = new org.exampl.vehicles.Vehicle.Block(new Vector(1, 0, 0), Material.OAK_WOOD, this.invisibleVehicle.getStand());
         this.blocks.add(block);
         org.exampl.vehicles.Vehicle.Block block2 = new org.exampl.vehicles.Vehicle.Block(new Vector(2, 0, 0), Material.OAK_WOOD, this.invisibleVehicle.getStand());
@@ -113,7 +178,7 @@ public class Vehicle {
 
     private void createBlocks(List<RelativeBlock> blocks) {
 
-        org.exampl.vehicles.Vehicle.VehiclesList.getVehiclesList().addVehicleToList(this.invisibleVehicle.getStand().getUniqueId(), this);
+        this.armorStands.add(this.invisibleVehicle.getStand());
 
         for (RelativeBlock block : blocks) {
 
@@ -150,7 +215,24 @@ public class Vehicle {
             armorStand.setBasePlate(standData.hasBasePlate());
             armorStand.setGravity(false);
 
-            cannons.add(new Cannon(armorStand, standData));
+
+            NamespacedKey key = new NamespacedKey(Vehicles.getVehicles(), "ship_part");
+
+            String shipPart = standData.getPartType();
+
+            if (shipPart != null) {
+
+                armorStand.getPersistentDataContainer().set(
+                        key,
+                        PersistentDataType.STRING,
+                        standData.getPartType()
+                );
+            }
+
+            Cannon cannon = new Cannon(armorStand, standData);
+            cannons.add(cannon);
+            this.armorStands.add(armorStand);
+            this.seats.add(new CannonSeat(armorStand));
         }
     }
 
@@ -171,6 +253,8 @@ public class Vehicle {
 
             createBlocks(ship.getBlocks());
             createArmorStands(ship.getArmorStands());
+            org.exampl.vehicles.Vehicle.VehiclesList.getVehiclesList().addVehicleToList(this.armorStands, this);
+
 
         }catch (IOException e) {
             e.printStackTrace();
@@ -304,7 +388,7 @@ public class Vehicle {
 
             ArmorStand armorStand = cannon.getArmorStand();
 
-            armorStand.teleport(target);
+            //armorStand.teleport(target);
 
             Location base = invisibleVehicle.getStand().getLocation().clone()
                     .add(0, invisibleVehicle.getStand().getHeight() / 2.0, 0);
@@ -324,7 +408,23 @@ public class Vehicle {
 
             float yawDegT = (float) Math.toDegrees(finalYawRad);
 
-           armorStand.setRotation(yawDegT, 0f);
+           //armorStand.setRotation(yawDegT, 0f);
+
+
+
+            CraftArmorStand craftStand = (CraftArmorStand) armorStand;
+            net.minecraft.world.entity.decoration.ArmorStand nms = craftStand.getHandle();
+
+
+            nms.absMoveTo(
+                    target.getX(),
+                    target.getY(),
+                    target.getZ(),
+                    yawDegT,
+                    0f
+            );
+
+
 
            cannon.renderCannon(Math.toRadians(armorStand.getYaw()), armorStand.getLocation());
         }
@@ -334,12 +434,11 @@ public class Vehicle {
 
     public void startMovementLoop() {
 
-        new BukkitRunnable() {
+       vehicleTask = new BukkitRunnable() {
             @Override
             public void run() {
 
-                if (invisibleVehicle.getStand().isDead()
-                        || !invisibleVehicle.getStand().getPassengers().contains(player)) {
+                if (invisibleVehicle.getStand().isDead()) {
 
                     cancel();
                     invisibleVehicle.getStand().remove();
@@ -467,4 +566,21 @@ public class Vehicle {
         return (float) Math.toDegrees(finalYawRad);
     }
 
-}
+    public void deleteVehicle(){
+
+        vehicleTask.cancel();
+        invisibleVehicle.getStand().remove();
+        deleteBlocksInVehicle();
+        deleteCannonsInVehicle();
+
+        VehiclesList.getVehiclesList()
+                .removeVehicleFromList(invisibleVehicle.getStand().getUniqueId());
+
+        HotbarSnapshotDatabase.getHotbarSnapshotDatabase()
+                .restorePlayerHotbarSnapshot(player);
+
+        HotbarSnapshotDatabase.getHotbarSnapshotDatabase()
+                .removePlayerSnapshotFromDatabase(player);
+    }
+
+        }
